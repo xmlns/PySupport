@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait as wait
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from cryptography.fernet import Fernet
+from datetime import datetime
 import getpass
 path_prefix = 'C:\\Users\\akulkar5\\OneDrive - University of Toledo\\Desktop\\'
 path_to_tag_file = path_prefix + 'tags.txt'
@@ -45,8 +46,9 @@ dept_input = "IT Personnel("
 modified_input = "AKULKAR5"
 entry_tech_input = "AKULKAR5"
 #date fields
-date_created_input = "06/13/2019 12:00:00 AM"
-date_modified_input = "06/13/2019 12:00:00 AM"
+date_created_input = datetime.now().strftime('%m/%d/%Y') + ' 12:00:00 AM'
+date_modified_input = date_created_input
+print(date_created_input)
 #loop from here
 for serial in serial_mac_map:
     name_input = "UT" + serial
@@ -92,7 +94,9 @@ for serial in serial_mac_map:
     print("Auto filling fields...")
     for field in field_input_map:
         field.send_keys(field_input_map[field] + Keys.ENTER)
-    #new tab
+    #save button
+    driver.find_elements_by_class_name('rrbButtonImage')[0].click()
+    #new tab - NOT WORKING
     driver.find_element_by_tag_name("body").send_keys(Keys.CONTROL + 't')
     ## TODO: if not the last element in the dict
     print("Creating asset...")
