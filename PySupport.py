@@ -1,3 +1,5 @@
+# Online Python compiler (interpreter) to run Python online.
+# Write Python 3 code in this online editor and run it.
 #iSupport Entry Automation - PySupport v1.2
 #Written by Amogh Kulkarni on 6/12/19
 from selenium import webdriver
@@ -11,31 +13,50 @@ from selenium.webdriver.support import expected_conditions as EC
 from cryptography.fernet import Fernet
 from datetime import datetime
 import getpass
-path_prefix = 'C:\\Users\\akulkar5\\OneDrive - University of Toledo\\Desktop\\'
-path_to_tag_file = path_prefix + 'tags.txt'
-path_to_mac_file = path_prefix + 'macs.txt'
+
+def decrypt_pwd():
+    encrypted = "gAAAAABdAmOvcj0Y4RBDyqRoIRjr9aYmgUfZx2Q9lpZ_H_UenJ1_0CmA5Cqu_CY0ZSsyAsuLbjlLQ51RWO0rm5CADRmVzDGgNA=="
+    key = "rhvxGus7Id4wKVtcCRp-7w5BbVlSLS3aOUj_bldL" + getpass.getpass("Key suffix: ")
+    encoding = "utf-8"
+    cipher = Fernet(bytes(key, encoding))
+    to_decrypt = bytes(encrypted, encoding)
+    return (cipher.decrypt(to_decrypt)).decode(encoding))
+
+def readTagNumbersFromFile():
+    path_to_tag_file = 'C:\\Users\\akulkar5\\OneDrive - University of Toledo\\Desktop\\tags.txt'
+    with open(path_to_tag_file) as tag_file:
+        tags = tag_file.read().splitlines()
+    return tags
+
+def readMacAddressesFromFile():
+    path_to_mac_file = 'C:\\Users\\akulkar5\\OneDrive - University of Toledo\\Desktop\\macs.txt'
+    with open(path_to_mac_file) as mac_file:
+        macs = mac_file.read().splitlines()
+    return macs
+
+def createMapOfTagsAndMacs():
+    tags = readTagNumbersFromFile()
+    macs = readMacAddressesFromFile()
+    serial_mac_map = dict(zip(tags, macs))
+    print(serial_mac_map)
+    return serial_mac_map
+
+def login():
+    user = "akulkar5"
+    driver = webdriver.Firefox()
+    print("Logging in...")
+    driver.get("https://ittech.utoledo.edu")
+    #wait(driver, 5).until(EC.alert_is_present())
+    alert = driver.switch_to_alert()
+    alert.send_keys(user + Keys.TAB + decrypt_pwd()
+    alert.accept()
+
+def savePage():
+    driver.find_elements_by_class_name('rrbButtonImage')[0].click()
+
 #decrypt pw
-encrypted = "gAAAAABdAmOvcj0Y4RBDyqRoIRjr9aYmgUfZx2Q9lpZ_H_UenJ1_0CmA5Cqu_CY0ZSsyAsuLbjlLQ51RWO0rm5CADRmVzDGgNA=="
-key = "rhvxGus7Id4wKVtcCRp-7w5BbVlSLS3aOUj_bldL" + getpass.getpass("Key suffix: ")
-encoding = "utf-8"
-cipher = Fernet(bytes(key, encoding))
-to_decrypt = bytes(encrypted, encoding)
 #get data(Tags and MACs) from their respective files
-with open(path_to_tag_file) as tag_file:
-    tags = tag_file.read().splitlines()
-with open(path_to_mac_file) as mac_file:
-    macs = mac_file.read().splitlines()
-serial_mac_map = dict(zip(tags, macs))
-print(serial_mac_map)
 #login to isupport
-user = "akulkar5"
-driver = webdriver.Firefox()
-print("Logging in...")
-driver.get("https://ittech.utoledo.edu")
-#wait(driver, 5).until(EC.alert_is_present())
-alert = driver.switch_to_alert()
-alert.send_keys(user + Keys.TAB + (cipher.decrypt(to_decrypt)).decode(encoding))
-alert.accept()
 #make asset
 print("Creating asset...")
 driver.get("https://ittech.utoledo.edu/Rep/Asset/Asset.aspx?AssetTypeID=2")
@@ -50,6 +71,7 @@ date_created_input = datetime.now().strftime('%m/%d/%Y') + ' 12:00:00 AM'
 date_modified_input = date_created_input
 print(date_created_input)
 #loop from here
+serial_mac_map = createMapOfTagsAndMacs()
 for serial in serial_mac_map:
     name_input = "UT" + serial
     tag_input = name_input
@@ -95,7 +117,7 @@ for serial in serial_mac_map:
     for field in field_input_map:
         field.send_keys(field_input_map[field] + Keys.ENTER)
     #save button
-    driver.find_elements_by_class_name('rrbButtonImage')[0].click()
+    savePage()
     #new tab - NOT WORKING
     driver.find_element_by_tag_name("body").send_keys(Keys.CONTROL + 't')
     ## TODO: if not the last element in the dict
