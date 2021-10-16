@@ -1,4 +1,4 @@
-# PySupport
+# PySupport - Asset Registration
 Python script to automate asset (computers and more) registration into iSupport for the IT department at the University of Toledo, Medical Center
 PySupport - v1.2
 
